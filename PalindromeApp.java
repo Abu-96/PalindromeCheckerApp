@@ -2,42 +2,62 @@ public class PalindromeApp {
 
     public static void main(String[] args) {
 
-        // Input string
         String input = "Level";
 
-        // Inject strategy at runtime
-        PalindromeStrategy strategy = new StackStrategy();
-
-        // Context using selected strategy
-        PalindromeContext context = new PalindromeContext(strategy);
-
-        boolean result = context.executeCheck(input);
-
         System.out.println("Input : " + input);
+
+        // Stack Strategy
+        PalindromeStrategy stackStrategy = new StackStrategy();
+        measurePerformance("Stack Strategy", stackStrategy, input);
+
+        // Two Pointer Strategy
+        PalindromeStrategy twoPointerStrategy = new TwoPointerStrategy();
+        measurePerformance("Two Pointer Strategy", twoPointerStrategy, input);
+    }
+
+    /**
+     * Measures execution time of a strategy.
+     */
+    private static void measurePerformance(String name,
+                                           PalindromeStrategy strategy,
+                                           String input) {
+
+        long startTime = System.nanoTime();
+
+        boolean result = strategy.check(input);
+
+        long endTime = System.nanoTime();
+
+        long executionTime = endTime - startTime;
+
+        System.out.println("\nAlgorithm : " + name);
         System.out.println("Is Palindrome? : " + result);
+        System.out.println("Execution Time : " + executionTime + " ns");
     }
 }
 
+/**
+ * Strategy Interface
+ */
 interface PalindromeStrategy {
     boolean check(String input);
 }
 
+/**
+ * Stack Based Strategy
+ */
 class StackStrategy implements PalindromeStrategy {
 
     public boolean check(String input) {
 
-        // Normalize to ignore case
         input = input.toLowerCase();
 
-        // Create a stack to store characters
         java.util.Stack<Character> stack = new java.util.Stack<>();
 
-        // Push each character onto the stack
         for (char c : input.toCharArray()) {
             stack.push(c);
         }
 
-        // Compare characters by popping from stack
         for (char c : input.toCharArray()) {
             if (c != stack.pop()) {
                 return false;
@@ -48,15 +68,26 @@ class StackStrategy implements PalindromeStrategy {
     }
 }
 
-class PalindromeContext {
+/**
+ * Two Pointer Strategy (Optimized)
+ */
+class TwoPointerStrategy implements PalindromeStrategy {
 
-    private PalindromeStrategy strategy;
+    public boolean check(String input) {
 
-    public PalindromeContext(PalindromeStrategy strategy) {
-        this.strategy = strategy;
-    }
+        input = input.toLowerCase();
 
-    public boolean executeCheck(String input) {
-        return strategy.check(input);
+        int start = 0;
+        int end = input.length() - 1;
+
+        while (start < end) {
+            if (input.charAt(start) != input.charAt(end)) {
+                return false;
+            }
+            start++;
+            end--;
+        }
+
+        return true;
     }
 }
