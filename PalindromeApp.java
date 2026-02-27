@@ -2,40 +2,61 @@ public class PalindromeApp {
 
     public static void main(String[] args) {
 
-        // Define input string
-        String input = "racecar";
+        // Input string
+        String input = "Level";
 
-        // Create object of PalindromeChecker
-        PalindromeChecker checker = new PalindromeChecker();
+        // Inject strategy at runtime
+        PalindromeStrategy strategy = new StackStrategy();
 
-        // Call method
-        boolean result = checker.checkPalindrome(input);
+        // Context using selected strategy
+        PalindromeContext context = new PalindromeContext(strategy);
 
-        // Display result
+        boolean result = context.executeCheck(input);
+
         System.out.println("Input : " + input);
         System.out.println("Is Palindrome? : " + result);
     }
 }
 
-class PalindromeChecker {
+interface PalindromeStrategy {
+    boolean check(String input);
+}
 
-    public boolean checkPalindrome(String input) {
+class StackStrategy implements PalindromeStrategy {
 
-        // Initialize pointers
-        int start = 0;
-        int end = input.length() - 1;
+    public boolean check(String input) {
 
-        // Compare characters moving inward
-        while (start < end) {
+        // Normalize to ignore case
+        input = input.toLowerCase();
 
-            if (input.charAt(start) != input.charAt(end)) {
+        // Create a stack to store characters
+        java.util.Stack<Character> stack = new java.util.Stack<>();
+
+        // Push each character onto the stack
+        for (char c : input.toCharArray()) {
+            stack.push(c);
+        }
+
+        // Compare characters by popping from stack
+        for (char c : input.toCharArray()) {
+            if (c != stack.pop()) {
                 return false;
             }
-
-            start++;
-            end--;
         }
 
         return true;
+    }
+}
+
+class PalindromeContext {
+
+    private PalindromeStrategy strategy;
+
+    public PalindromeContext(PalindromeStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public boolean executeCheck(String input) {
+        return strategy.check(input);
     }
 }
